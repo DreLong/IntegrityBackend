@@ -1,26 +1,26 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "0909",  
-    "database": "postgres",                
-    "host": "localhost",
-    "port": 5432,
+    "username": "ucaegfyafqio5toen9fy",
+    "password": "6HWugiEP0Y05Oy5UCtjZPLV7TI7oBB",  
+    "database": "bfddxpi8qshj3ycn9cxd",                
+    "host": "bfddxpi8qshj3ycn9cxd-postgresql.services.clever-cloud.com",
+    "port": 50013,
     "dialect": "postgres"
   },
   "test": {
-    "username": "postgres",
-    "password": "0909",
-    "database": "postgres",          
-    "host": "localhost",
-    "port": 5432,
+    "username": "ucaegfyafqio5toen9fy",
+    "password": "6HWugiEP0Y05Oy5UCtjZPLV7TI7oBB",  
+    "database": "bfddxpi8qshj3ycn9cxd",                
+    "host": "bfddxpi8qshj3ycn9cxd-postgresql.services.clever-cloud.com",
+    "port": 50013,
     "dialect": "postgres"
   },
   "production": {
-    "username": "postgres",
-    "password": "0909",
-    "database": "postgres",   
-    "host": "localhost",
-    "port": 5432,
+    "username": "ucaegfyafqio5toen9fy",
+    "password": "6HWugiEP0Y05Oy5UCtjZPLV7TI7oBB",  
+    "database": "bfddxpi8qshj3ycn9cxd",                
+    "host": "bfddxpi8qshj3ycn9cxd-postgresql.services.clever-cloud.com",
+    "port": 50013,
     "dialect": "postgres"
   }
 }
