@@ -1,4 +1,3 @@
-// config/database.js
 require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
@@ -6,6 +5,12 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   host: process.env.DB_HOST,
   dialect: 'postgres',
   logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  },
 });
 
 module.exports = sequelize;
