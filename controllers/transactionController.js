@@ -1,4 +1,4 @@
-const { sequelize } = require("../models");  // Import sequelize instance
+const { sequelize } = require("../models"); // Import sequelize instance
 const { User, Account, Transaction, RecentTransaction } = require("../models");
 const { Op } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
@@ -11,7 +11,9 @@ const getUserByAccountNumber = async (req, res) => {
     // Find the account by account number
     const account = await Account.findOne({
       where: { accountNumber },
-      include: [{ model: User, as: "user", attributes: ['firstName', 'lastName'] }]
+      include: [
+        { model: User, as: "user", attributes: ["firstName", "lastName"] },
+      ],
     });
 
     if (!account) {
@@ -22,24 +24,24 @@ const getUserByAccountNumber = async (req, res) => {
     res.json({ firstName, lastName });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred while retrieving user data" });
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving user data" });
   }
 };
 
-
 // Helper function to generate a unique 24-digit transaction number
 function generateTransactionNumber() {
-  const timestamp = Date.now(); 
-  let transactionNumber = timestamp.toString(); 
+  const timestamp = Date.now();
+  let transactionNumber = timestamp.toString();
 
   // Add random digits to make it exactly 24 digits long
   while (transactionNumber.length < 24) {
-    transactionNumber += Math.floor(Math.random() * 10); 
+    transactionNumber += Math.floor(Math.random() * 10);
   }
 
   return transactionNumber;
 }
-
 
 const sendMoneyToAccount = async (req, res) => {
   const { accountNumber, amount } = req.body;
@@ -49,13 +51,17 @@ const sendMoneyToAccount = async (req, res) => {
 
   try {
     if (amount <= 0) {
-      return res.status(400).json({ message: "Amount must be greater than zero" });
+      return res
+        .status(400)
+        .json({ message: "Amount must be greater than zero" });
     }
 
     // Find the sender account by userUuid
     const senderAccount = await Account.findOne({
       where: { userUuid },
-      include: [{ model: User, as: "user", attributes: ['firstName', 'lastName'] }] 
+      include: [
+        { model: User, as: "user", attributes: ["firstName", "lastName"] },
+      ],
     });
 
     if (!senderAccount) {
@@ -65,7 +71,9 @@ const sendMoneyToAccount = async (req, res) => {
     // Find the receiver account by account number
     const receiverAccount = await Account.findOne({
       where: { accountNumber },
-      include: [{ model: User, as: "user", attributes: ['firstName', 'lastName'] }]
+      include: [
+        { model: User, as: "user", attributes: ["firstName", "lastName"] },
+      ],
     });
 
     if (!receiverAccount) {
@@ -132,17 +140,24 @@ const sendMoneyToAccount = async (req, res) => {
     });
 
     // Save to RecentTransaction table
-    await RecentTransaction.create({
-      accountNumber: receiverAccount.accountNumber,
-      firstName: receiverAccount.user.firstName,
-      lastName: receiverAccount.user.lastName,
-      transactionDate: new Date(),
-    }, { transaction });
+    await RecentTransaction.create(
+      {
+        accountNumber: receiverAccount.accountNumber,
+        firstName: receiverAccount.user.firstName,
+        lastName: receiverAccount.user.lastName,
+        transactionDate: new Date(),
+      },
+      { transaction }
+    );
 
     await transaction.commit();
 
-    const updatedSenderAccount = await Account.findOne({ where: { accountNumber: senderAccount.accountNumber } });
-    const updatedReceiverAccount = await Account.findOne({ where: { accountNumber } });
+    const updatedSenderAccount = await Account.findOne({
+      where: { accountNumber: senderAccount.accountNumber },
+    });
+    const updatedReceiverAccount = await Account.findOne({
+      where: { accountNumber },
+    });
 
     res.json({
       message: "Money transferred successfully",
@@ -157,47 +172,4 @@ const sendMoneyToAccount = async (req, res) => {
   }
 };
 
-
-
-const getTransactionHistory = async (req, res) => {
-  try {
-    // Fetch all transactions, ordered by timestamp
-    const transactions = await Transaction.findAll({
-      order: [["timestamp", "DESC"]],
-    });
-
-    if (!transactions.length) {
-      return res.status(404).json({ message: "No transactions found" });
-    }
-
-    const formattedTransactions = transactions.map(transaction => {
-      const isSender = transaction.senderAccountUuid === transaction.accountUuid;
-      const transactionDetails = {
-        transactionNumber: transaction.transactionNumber,
-        amount: transaction.amount,
-        transactionType: transaction.transactionType,
-        description: transaction.description,
-        sender: `${transaction.senderFirstName} ${transaction.senderLastName}`,
-        receiver: `${transaction.receiverFirstName} ${transaction.receiverLastName}`,
-        timestamp: transaction.timestamp,
-      };
-
-      // Add extra details for the receiver side as well
-      if (!isSender) {
-        transactionDetails.receiverAmount = transaction.amount; // Amount received
-        transactionDetails.senderAmount = -transaction.amount; // Amount sent
-      }
-
-      return transactionDetails;
-    });
-
-    res.json({ transactions: formattedTransactions });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "An error occurred while retrieving transactions" });
-  }
-};
-
-
-
-module.exports = { getUserByAccountNumber, sendMoneyToAccount, getTransactionHistory };
+module.exports = { getUserByAccountNumber, sendMoneyToAccount };
