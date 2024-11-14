@@ -42,6 +42,7 @@ function generateTransactionNumber() {
 
 
 
+
 const sendMoneyToAccount = async (req, res) => {
   const { accountNumber, amount } = req.body;
   const userUuid = req.user.uuid;
@@ -53,17 +54,15 @@ const sendMoneyToAccount = async (req, res) => {
       return res.status(400).json({ message: "Amount must be greater than zero" });
     }
 
-    // Find the sender account by userUuid
     const senderAccount = await Account.findOne({
       where: { userUuid },
-      include: [{ model: User, as: "user", attributes: ['firstName', 'lastName'] }] 
+      include: [{ model: User, as: "user", attributes: ['firstName', 'lastName'] }]
     });
 
     if (!senderAccount) {
       return res.status(404).json({ message: "Sender account not found" });
     }
 
-    // Find the receiver account by account number
     const receiverAccount = await Account.findOne({
       where: { accountNumber },
       include: [{ model: User, as: "user", attributes: ['firstName', 'lastName'] }]
@@ -91,17 +90,14 @@ const sendMoneyToAccount = async (req, res) => {
     receiverAccount.balance = receiverCurrentBalance + parsedAmount;
     await receiverAccount.save({ transaction });
 
-    
-    // Generate a 24-digit transaction number
     const SendertransactionNo = generateTransactionNumber();
     const ReceivertransactionNo = generateTransactionNumber();
 
-    // Creating transaction entries for sender and receiver
     await Transaction.create({
       uuid: uuidv4(),
       accountUuid: senderAccount.uuid,
       senderAccountUuid: senderAccount.uuid,
-      receiverAccountUuid: receiverAccount.uuid, // Use receiver's UUID here
+      receiverAccountUuid: receiverAccount.uuid,
       amount: -parsedAmount,
       transactionType: "debit",
       description: "Money sent to another account",
@@ -133,6 +129,23 @@ const sendMoneyToAccount = async (req, res) => {
       updatedAt: new Date(),
     });
 
+    // Add receiver to the Recent table if not already there
+    const existingRecent = await Recent.findOne({
+      where: {
+        userUuid,
+        accountNumber: receiverAccount.accountNumber,
+      },
+    });
+
+    if (!existingRecent) {
+      await Recent.create({
+        userUuid,
+        accountNumber: receiverAccount.accountNumber,
+        firstName: receiverAccount.user.firstName,
+        lastName: receiverAccount.user.lastName,
+      });
+    }
+
     await transaction.commit();
 
     const updatedSenderAccount = await Account.findOne({ where: { accountNumber: senderAccount.accountNumber } });
@@ -142,7 +155,7 @@ const sendMoneyToAccount = async (req, res) => {
       message: "Money transferred successfully",
       senderNewBalance: updatedSenderAccount.balance,
       receiverNewBalance: updatedReceiverAccount.balance,
-      SendertransactionNo, // Ensure it's part of the response
+      SendertransactionNo,
     });
   } catch (error) {
     await transaction.rollback();
@@ -150,6 +163,7 @@ const sendMoneyToAccount = async (req, res) => {
     res.status(500).json({ message: "An error occurred while sending money" });
   }
 };
+
 
 
 const getTransactionHistory = async (req, res) => {
