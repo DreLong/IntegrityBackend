@@ -40,11 +40,25 @@
   }
   },
   "production": {
-    "username": "ucaegfyafqio5toen9fy",
-    "password": "6HWugiEP0Y05Oy5UCtjZPLV7TI7oBB",  
-    "database": "bfddxpi8qshj3ycn9cxd",                
-    "host": "bfddxpi8qshj3ycn9cxd-postgresql.services.clever-cloud.com",
-    "port": 50013,
-    "dialect": "postgres"
+    "username": "postgres.hbwsqxrhotggzeauuqyv",
+  "password": "IntegrityDB!@.>.",
+  "database": "postgres",
+  "host": "aws-0-us-east-2.pooler.supabase.com",
+  "port": 5432,
+  "dialect": "postgres",
+  "pool": {
+    "max": 5,
+    "min": 0,
+    "acquire": 30000,
+    "idle": 10000
+  },
+  "dialectOptions": {
+    "ssl": {
+      "require": true,
+      "rejectUnauthorized": false
+    }
+
+  }
+
   }
 }
