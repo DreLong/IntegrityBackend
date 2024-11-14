@@ -1,5 +1,5 @@
 const { sequelize } = require("../models");  // Import sequelize instance
-const { User, Account, Transaction } = require("../models");
+const { User, Account, Transaction, RecentTransaction } = require("../models");
 const { Op } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
 
@@ -39,7 +39,6 @@ function generateTransactionNumber() {
 
   return transactionNumber;
 }
-
 
 
 const sendMoneyToAccount = async (req, res) => {
@@ -91,7 +90,6 @@ const sendMoneyToAccount = async (req, res) => {
     receiverAccount.balance = receiverCurrentBalance + parsedAmount;
     await receiverAccount.save({ transaction });
 
-    
     // Generate a 24-digit transaction number
     const SendertransactionNo = generateTransactionNumber();
     const ReceivertransactionNo = generateTransactionNumber();
@@ -133,6 +131,14 @@ const sendMoneyToAccount = async (req, res) => {
       updatedAt: new Date(),
     });
 
+    // Save to RecentTransaction table
+    await RecentTransaction.create({
+      accountNumber: receiverAccount.accountNumber,
+      firstName: receiverAccount.user.firstName,
+      lastName: receiverAccount.user.lastName,
+      transactionDate: new Date(),
+    }, { transaction });
+
     await transaction.commit();
 
     const updatedSenderAccount = await Account.findOne({ where: { accountNumber: senderAccount.accountNumber } });
@@ -150,6 +156,7 @@ const sendMoneyToAccount = async (req, res) => {
     res.status(500).json({ message: "An error occurred while sending money" });
   }
 };
+
 
 
 const getTransactionHistory = async (req, res) => {
