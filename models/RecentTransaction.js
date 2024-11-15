@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      senderUuid: { // Add senderUuid to track ownership
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
     });
   
     return RecentTransaction;

@@ -24,9 +24,6 @@ const getUserByAccountNumber = async (req, res) => {
     res.json({ firstName, lastName });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while retrieving user data" });
   }
 };
 
@@ -45,7 +42,7 @@ function generateTransactionNumber() {
 
 const sendMoneyToAccount = async (req, res) => {
   const { accountNumber, amount } = req.body;
-  const userUuid = req.user.uuid;
+  const userUuid = req.user.uuid; // Get the current user's UUID
 
   const transaction = await sequelize.transaction();
 
@@ -60,7 +57,7 @@ const sendMoneyToAccount = async (req, res) => {
     const senderAccount = await Account.findOne({
       where: { userUuid },
       include: [
-        { model: User, as: "user", attributes: ["firstName", "lastName"] },
+        { model: User, as: "user", attributes: ["firstName", "lastName", "uuid"] }, // Make sure user UUID is included
       ],
     });
 
@@ -107,7 +104,7 @@ const sendMoneyToAccount = async (req, res) => {
       uuid: uuidv4(),
       accountUuid: senderAccount.uuid,
       senderAccountUuid: senderAccount.uuid,
-      receiverAccountUuid: receiverAccount.uuid, // Use receiver's UUID here
+      receiverAccountUuid: receiverAccount.uuid,
       amount: -parsedAmount,
       transactionType: "debit",
       description: "Money sent to another account",
@@ -139,13 +136,14 @@ const sendMoneyToAccount = async (req, res) => {
       updatedAt: new Date(),
     });
 
-    // Save to RecentTransaction table
+    // Save to RecentTransaction table with senderUuid
     await RecentTransaction.create(
       {
         accountNumber: receiverAccount.accountNumber,
         firstName: receiverAccount.user.firstName,
         lastName: receiverAccount.user.lastName,
         transactionDate: new Date(),
+        senderUuid: senderAccount.user.uuid, // Ensure senderUuid is properly assigned
       },
       { transaction }
     );
@@ -163,7 +161,7 @@ const sendMoneyToAccount = async (req, res) => {
       message: "Money transferred successfully",
       senderNewBalance: updatedSenderAccount.balance,
       receiverNewBalance: updatedReceiverAccount.balance,
-      SendertransactionNo, // Ensure it's part of the response
+      SendertransactionNo,
     });
   } catch (error) {
     await transaction.rollback();

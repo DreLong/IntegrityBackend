@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const transactionRoutes = require('./routes/transactions');
+const recentHistoryRoutes = require('./routes/recent');
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,5 +17,7 @@ app.use('/users', userRoutes);
 
 // Use the transaction routes
 app.use("/transactions", transactionRoutes);
+
+app.use('/recent-history', recentHistoryRoutes);
 
 module.exports = app;

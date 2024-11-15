@@ -1,11 +1,16 @@
 // controllers/recentController.js
 
-const { RecentTransaction } = require('../models'); // Adjust path to your models
+const { RecentTransaction } = require('../models');
 
-// Get Recent Users
-const getRecentUsers = async (req, res) => {
+// Get Recent Transactions for the current user (based on senderUuid)
+const getRecentTransactionsForCurrentUser = async (req, res) => {
+  const currentUserUuid = req.user.uuid;
+
   try {
     const recentTransactions = await RecentTransaction.findAll({
+      where: {
+        senderUuid: currentUserUuid, // Filter by senderUuid (the current user's UUID)
+      },
       order: [["transactionDate", "DESC"]],
       limit: 10, // You can adjust the limit as needed
     });
@@ -28,4 +33,4 @@ const getRecentUsers = async (req, res) => {
   }
 };
 
-module.exports = { getRecentUsers };
+module.exports = { getRecentTransactionsForCurrentUser };
