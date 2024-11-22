@@ -143,7 +143,7 @@ const sendMoneyToAccount = async (req, res) => {
         firstName: receiverAccount.user.firstName,
         lastName: receiverAccount.user.lastName,
         transactionDate: new Date(),
-        senderUuid: senderAccount.user.uuid, // Ensure senderUuid is properly assigned
+        senderUuid: senderAccount.user.uuid,
       },
       { transaction }
     );

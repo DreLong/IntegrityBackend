@@ -1,12 +1,11 @@
 // routes/user.js
 const express = require("express");
 const { getUserData, getUserAccountBalance } = require("../controllers/userController");
-const authMiddleware = require("../middleware/authMiddleware"); // Assuming you have middleware to authenticate users
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Protect the routes with authentication middleware
-router.get("/data", authMiddleware, getUserData); // Route to get user data
-router.get("/account/balance", authMiddleware, getUserAccountBalance); // Route to get account balance
+router.get("/data", authMiddleware, getUserData); // Only logged-in users can access
+router.get("/account/balance", authMiddleware, getUserAccountBalance); // Only logged-in users can access
 
 module.exports = router;

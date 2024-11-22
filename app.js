@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use('/auth', authRoutes);
 
 // Use the user routes
-app.use('/users', userRoutes);
+app.use('/user', userRoutes);
 
 // Use the transaction routes
 app.use("/transactions", transactionRoutes);
