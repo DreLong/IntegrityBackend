@@ -68,7 +68,7 @@ const sendEmailOtp = async (req, res) => {
     );
     await user.save();
 
-    const token = generateToken({ uuid: user.uuid });
+    const token = generateToken({ uuid: user.uuid,  email: user.email, phoneNumber: user.phoneNumber });
 
     await sendOtpToDestination(email, "email", otp);
     res.json({
@@ -113,6 +113,7 @@ const verifyEmailOtp = async (req, res) => {
 };
 
 // Send OTP for phone number verification
+// Send OTP for phone number verification
 const sendPhoneOtp = async (req, res) => {
   const { token, phoneNumber } = req.body;
 
@@ -137,13 +138,22 @@ const sendPhoneOtp = async (req, res) => {
     );
     await user.save();
 
+    // Send OTP to phone
     await sendOtpToDestination(phoneNumber, "phone", otp);
-    res.json({ message: "OTP sent to phone number for verification.", token });
+
+    // Send OTP to email as a backup
+    if (user.email) {
+      await sendOtpToDestination(user.email, "email", otp);
+      console.log(`Backup OTP sent to email: ${user.email}`);
+    }
+
+    res.json({ message: "OTP sent to phone number and email for verification.", token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "An error occurred while sending OTP" });
   }
 };
+
 
 // Verify phone OTP
 const verifyPhoneOtp = async (req, res) => {
